@@ -48,7 +48,7 @@ ADRNIVX_0000000276535697;;A045;152;"";33199;33470;"";LE VILLAGE DES PINS;;GUJAN 
 La base SIRENE est fournie en un fichier unique, au format *csv*, avec une fréquence de mise à jour mensuelle.
 Des fichiers de mise à jour régulière sont aussi disponible. Nous utiliserons ici le fichier global de 8.5Go et disponible compressé sur le site open data d'une taille de 1.5 Go.
 
-Ce fichier est d'une qualité très particulière, il est aussi à noter que les types des champs ne sont pas particulièrement ==probants/judicieux==
+Ce fichier est d'une qualité très particulière, il est aussi à noter que les types des champs ne sont pas particulièrement judicieux (quasiment que du type caractères).
 Il est composé de 100 champs ! Ils ne seront donc pas listés en intégralité ici. Voici la liste des plus intéressants :
 
 - **SIREN** : identifiant de l'entreprise
@@ -313,6 +313,8 @@ COPY table FROM './directory/file.csv' DELIMITER ';' CSV HEADER ENCODING 'UTF8';
 
 ```sh
 bigdata= COPY ban FROM './Projet_BigData/BAN_93.csv' DELIMITER ';' CSV HEADER;
+COPY 230046
+Time: 9450,544 ms
 ```
 
 **Vérification**
@@ -329,6 +331,8 @@ SELECT * FROM ban LIMIT 1;
 
 ```sh
 bigdata= COPY siren FROM './Projet_BigData/sirc_20170201_152507836.csv' DELIMITER ';' CSV HEADER ENCODING 'LATIN1';
+COPY 10563603
+Time: 1029392,563 ms
 ```
 
 **Vérification**
@@ -354,7 +358,7 @@ Afin d'avoir l'affichage ultérieurement dans un outil, tel que qGIS, ou de réa
 
 ```sql
 ALTER TABLE ban
-	ADD COLUMN geom geometry(Point,4326);
+	ADD COLUMN geom geometry(Point,4326);	
 ```
 
 **Mise à jour du champ geom**
@@ -363,11 +367,9 @@ ALTER TABLE ban
 UPDATE ban
 SET geom = ST_SetSRID(ST_Point(lon, lat), 4326)
 WHERE geom IS NULL;
-```
-
-*Résultat*
 UPDATE 230046
-Time: 20631,819 ms
+Time: 25141,886 ms
+```
 
 ####SIRENE####
 
@@ -385,7 +387,8 @@ ALTER TABLE siren
 ```sql
 UPDATE siren
 SET code_insee = CONCAT(depet, comet);
-
+UPDATE 10563603
+Time: 1787948,350 ms
 ```
 
 **Ajout du champ banid**
@@ -400,7 +403,29 @@ ALTER TABLE siren
 **Mise à jour du champ code_insee**
 
 Cette opération sera effectuée par géocodage.
-==A compléter==
+Les données relatives à la localisation n'étant pas identiques entre les deux tables, nous allons utiliser un algorithme qui permettra de trouver l'adresse de la BAN la plus proche littéralement de l'adresse du SIRENE.
+En ajoutant l'extension *[Fuzzystrmatch](https://www.postgresql.org/docs/current/static/fuzzystrmatch.html)* à notre base, nous pourrons ainsi utiliser la fonction *levenshtein*.
+```
+levenshtein(text source, text target) returns int
+```
+
+Cette fonction retourne un entier qui représente la nombre d'ajout/suppression de caractères à effectuer à la chaine une pour obtenir la deuxième. Elle est sensible à la casse, pour cette raison, nous devrons passer les chaines de caractères à une casse identique.
+
+La requête utilisée recherche l'adresse BAN la plus proche de celle du Sirene, un contrainte est mise pour limiter une distance de Levenshtein inférieure à 8.
+Une deuxième requête est faite pour les *avenue* et *boulevard*, car abrégés dans le sirene, ils augmentent la distance de Levenshtein qui sera contrainte à moins de 12.
+
+En procédant de la sorte, nous obtenons 3% de déchet. Il serait tentant de lever cette contrainte, ainsi nous obtiendrons un taux de succès de 100% mais au détriment de la qualité du géoréférencement.
+
+```sql
+UPDATE siren s
+SET banid = (SELECT b.id
+	FROM ban b
+	WHERE b.code_insee = s.code_insee
+	AND levenshtein(LOWER(CONCAT(s.numvoie, ' ', s.typvoie, ' ', s.libvoie)), LOWER(CONCAT(b.numero, b.nom_voie))) < 8
+	ORDER BY levenshtein(LOWER(CONCAT(s.numvoie, ' ', s.typvoie, ' ', s.libvoie)), LOWER(CONCAT(b.numero, b.nom_voie)))
+	LIMIT 1)
+WHERE depet = '93' AND banid IS NULL;
+```
 
 ###Les Index###
 
@@ -419,7 +444,17 @@ CREATE INDEX ban_id ON ban
 ```sql
 CREATE INDEX siren_dept ON siren
   USING btree (depet);
+CREATE INDEX
+Time: 777214,730 ms
   
 CREATE INDEX siren_code_insee ON siren
   USING btree (code_insee);
+```
+
+###Option###
+
+Il est possible de créer une table ne contenant que les données relatives au 93 et en restreignant le nombre de colonnes.
+
+```sql
+CREATE TABLE siren93 AS SELECT SIREN, NIC, NUMVOIE, INDREP, TYPVOIE, LIBVOIE, CODPOS, DEPET, COMET, LIBCOM, ENSEIGNE, NATETAB, LIBNATETAB, APET700, LIBAPET, NOMEN_LONG, SIGLE, APEN700, LIBAPEN FROM siren WHERE depet = '93';
 ```

@@ -1,7 +1,6 @@
 /***
 **leaflet
 ***/
-
 var map = L.map("map").setView([48.856578, 2.351828], 10);
 
 var layer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -43,8 +42,7 @@ function getValues(event){
 
       console.log("Number of companies : " + result.companies.length);
 
-      if (result.companies.length > 1) {
-
+      if (result.companies.length > 0) {
         var liste = "";
         for (var i = 0; i < result.companies.length; i++) {
           var siret = result.companies[i].siren + result.companies[i].nic;
@@ -52,7 +50,7 @@ function getValues(event){
           "<strong>Nom : </strong>" + result.companies[i].nomen_long + "<br>" +
           "<strong>Activité : </strong>" + result.companies[i].libapet + "<br>" +
           "<strong>Distance : </strong>" + Math.round(result.companies[i].distance / 6e-06) + " m " +
-          "<a href='http://map.project-osrm.org/?z=14&center="+ mylat +"%2C" + mylon + "&loc="+ mylat +"%2C" + mylon + "&loc=" + result.companies[i].lat + "%2C" + result.companies[i].lon + "&hl=en&alt=0' target='_blank'>Y aller</a>");
+          "<a href='http://map.project-osrm.org/?z=14&center="+ mylat + "," + mylon + "&loc="+ mylat +"," + mylon + "&loc=" + result.companies[i].lat + "," + result.companies[i].lon + "&hl=en&alt=0' target='_blank'>Y aller</a>");
         }
       } else {
         console.log("No result !");

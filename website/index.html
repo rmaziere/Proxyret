@@ -9,6 +9,7 @@
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" href="http://getbootstrap.com/examples/jumbotron/jumbotron.css">
     <link rel="stylesheet" href="./css/leaflet.css" />
     <link rel="stylesheet" href="./css/styles.css"/>
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -19,17 +20,42 @@
     <![endif]-->
   </head>
   <body>
-    <h1>Recherche à proximité</h1>
-
-    <div class="form">
-      <input type="number" min="50" step="25" name="distance" id="distance" placeholder="Distance en mètre">
-      <input type="text" name="activity" id="activity" placeholder="Activité recherchée">
-      <input type="submit" name="submit" id="submit" value="Valider">
-      <input type="submit" name="removeMarker" id="removeMarker" value="Supprimer les marqueurs">
-      <input type="submit" name="locateMe" id="locateMe" value="Me localiser">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+     <div class="container">
+       <div class="navbar-header">
+         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+           <span class="sr-only">Toggle navigation</span>
+         </button>
+         <a class="navbar-brand" href="https://github.com/rmaziere/Proxyret" target="_blank">Proxyret</a>
+       </div>
+       <div id="navbar" class="navbar-collapse collapse">
+         <div class="navbar-form navbar-right">
+           <div class="form-group">
+             <input type="text" name="activity" id="activity" placeholder="Activité recherchée" class="form-control">
+           </div>
+           <div class="form-group">
+             <input type="number" min="50" step="25" name="distance" id="distance" placeholder="Distance en mètre" class="form-control">
+           </div>
+           <button type="submit" name="submit" id="submit" class="btn btn-success">Valider</button>
+           <button type="submit" name="locateMe" id="locateMe" class="btn btn-warning">Me localiser</button>
+           <button type="submit" name="removeMarker" id="removeMarker" class="btn btn-danger">Supprimer les marqueurs</button>
+         </div>
+       </div><!--/.navbar-collapse -->
+     </div>
+   </nav>
+    <div class="container">
+      <div class="starter-template">
+        <h1>Recherche à proximité</h1>
+        <!--div class="form">
+          <input type="number" min="50" step="25" name="distance" id="distance" placeholder="Distance en mètre">
+          <input type="text" name="activity" id="activity" placeholder="Activité recherchée">
+          <input type="submit" name="submit" id="submit" value="Valider">
+          <input type="submit" name="removeMarker" id="removeMarker" value="Supprimer les marqueurs">
+          <input type="submit" name="locateMe" id="locateMe" value="Me localiser">
+        </div-->
+        <div id="map"></div>
+      </div>
     </div>
-
-    <div id="map"></div>
 
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="./js/jquery.min.js"></script>

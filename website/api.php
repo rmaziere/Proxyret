@@ -7,7 +7,7 @@ $limit = 1000;
 
 //Companies
 if (isset($_GET["type"]) && $_GET["type"] == "companies") {
-  $companies_list = "SELECT s.siren, s.nic, s.nomen_long, s.libapet, b.geom, b.lat, b.lon, ST_Distance(ST_SetSRID(ST_Point(" . $_GET['lon'] . ", " . $_GET['lat'] . "), 4326), b.geom) AS distance, b.numero, b.nom_voie, b.code_post, b.nom_commune FROM test.siren93 s, test.ban b WHERE s.banid = b.id ";
+  $companies_list = "SELECT s.siren, s.nic, s.nomen_long, s.libapet, b.geom, b.lat, b.lon, ST_Distance(ST_SetSRID(ST_Point(" . $_GET['lon'] . ", " . $_GET['lat'] . "), 4326), b.geom) AS distance, b.numero, b.nom_voie, b.code_post, b.nom_commune FROM siren93 s, ban b WHERE s.banid = b.id ";
   if (isset($_GET["insee"]) && strlen($_GET["insee"]) == 5) {
     $companies_list .= " AND s.code_insee = '" . $_GET['insee'] . "'";
   }
@@ -43,7 +43,6 @@ if (isset($_GET["type"]) && $_GET["type"] == "companies") {
     $json_companies = "{\"companies\":[";
 
     $i = 0;
-
     while ($data = pg_fetch_array($result)) {
       if (isset($_GET["format"]) && strtolower($_GET["format"]) == "json") {
         $json_companies .= json_encode($data);
@@ -52,10 +51,10 @@ if (isset($_GET["type"]) && $_GET["type"] == "companies") {
         }
         $i++;
       }else {
-        echo "<strong>SIREN :</strong> " . $data['siren'] . $data['nic'] . " - ";
-        echo "<strong>Activité :</strong> " . $data['libapet'] . " - ";
-        echo "<strong>Adresse :</strong> " . $data['numero'] . " " . $data['nom_voie'] . " " . $data['code_post'] . " " . $data['nom_commune'] . " - ";
-        echo "<strong>Distance :</strong> " . distanceConverter($data['distance'], "dgr2m") . "<br>";
+        echo "<strong>SIREN :</strong> " . $data['siren'] . $data['nic'] . " - " +
+             "<strong>Activité :</strong> " . $data['libapet'] . " - " +
+             "<strong>Adresse :</strong> " . $data['numero'] . " " . $data['nom_voie'] . " " . $data['code_post'] . " " . $data['nom_commune'] . " - " +
+             "<strong>Distance :</strong> " . distanceConverter($data['distance'], "dgr2m") . "<br>";
       }
     }
     $json_companies .= "]}";
