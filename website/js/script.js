@@ -1,3 +1,6 @@
+var server_name = "server.home";
+var directory   = "/cartoWeb";
+
 /***
 **leaflet
 ***/
@@ -19,10 +22,12 @@ function getValues(event){
   var distance = document.getElementById('distance').value;
   var activity = document.getElementById('activity').value;
 
+  waitingDialog.show("Recherche en cours... Veuillez patienter.");
+
   // création de l'objet xhr
   var ajax = new XMLHttpRequest();
 
-  var uri_query = "http://server.home/cartoWeb/api.php?format=json&type=companies&distance=" + distance + "&activity=" + activity + "&lat=" + mylat + "&lon=" + mylon;
+  var uri_query = "http://" + server_name + directory + "/api.php?format=json&type=companies&distance=" + distance + "&activity=" + activity + "&lat=" + mylat + "&lon=" + mylon;
 
   console.log(uri_query);
 
@@ -55,6 +60,7 @@ function getValues(event){
       } else {
         console.log("No result !");
       }
+      waitingDialog.hide();
     }
   });
   // envoi de la requête
@@ -104,6 +110,7 @@ function locateMe(event) {
 
 //Add Marker on Map click
 map.on('click', function(e){
+  console.log("lat : " + e.latlng["lat"] + ", lon : " + e.latlng["lng"]);
   setPosition(e.latlng["lat"], e.latlng["lng"]);
   addMarker(e.latlng["lat"], e.latlng["lng"], "Me");
   mapSetView(e.latlng["lat"], e.latlng["lng"], 16);
