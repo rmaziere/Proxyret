@@ -79,3 +79,35 @@ CREATE INDEX siren_voie
 30 : SELECT * FROM siren WHERE libvoie = 'CHARLES DE GAULLE';
 31 : SELECT * FROM siren WHERE libvoie LIKE 'CHARLES DE GAULLE';
 ```
+
+###Distance de Levenshtein###
+
+La fonction de géocodage s'effectue en utilisant la fonction *[levenshtein](https://www.postgresql.org/docs/current/static/fuzzystrmatch.html)* de l'extention *fuzzystrmatch* de PostgreSQL.
+Voici le comparatif entre la requête utilisée (levenshtein) et une optimisation (levenshtein_less_equal).
+
+Quantité|levenshtein|levenshtein_less_equal
+---|---|---
+2683|270.646 ms|247.734 ms
+298|30.100 ms|27.300 ms
+
+```sql
+UPDATE siren93 s
+SET banid = (SELECT b.id
+	FROM ban b
+	WHERE b.code_insee = s.code_insee
+	AND levenshtein(LOWER(CONCAT(s.numvoie, ' ', s.typvoie, ' ', s.libvoie)), LOWER(CONCAT(b.numero, b.nom_voie))) < 8
+	ORDER BY levenshtein(LOWER(CONCAT(s.numvoie, ' ', s.typvoie, ' ', s.libvoie)), LOWER(CONCAT(b.numero, b.nom_voie)))
+	LIMIT 1)
+WHERE s.siren LIKE '820%'; --Permet de ne retourner qu'environ 3.000 sociétés
+```
+
+```sql
+UPDATE siren93 s
+SET banid = (SELECT b.id
+	FROM ban b
+	WHERE b.code_insee = s.code_insee
+	AND levenshtein_less_equal(LOWER(CONCAT(s.numvoie, ' ', s.typvoie, ' ', s.libvoie)), LOWER(CONCAT(b.numero, b.nom_voie)), 8) < 8
+	ORDER BY levenshtein(LOWER(CONCAT(s.numvoie, ' ', s.typvoie, ' ', s.libvoie)), LOWER(CONCAT(b.numero, b.nom_voie)))
+	LIMIT 1)
+WHERE s.siren LIKE '820%'; --Permet de ne retourner qu'environ 3.000 sociétés
+```

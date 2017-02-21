@@ -105,9 +105,17 @@ s.a.i.)";"7010Z";"Activités des sièges sociaux";"2014";"";"";"";"11";"10 à 19
 00"
 ```
 
+##Les diagrammes EA##
+
+[Description des diagrammes EA](./diagrammes/README.md)
+
 ##La base de données##
 
 Le SGBD utilisé pour ce projet est PostgreSQL.
+Les extensions sont :
+
+- PostGIS : pour la gestion des géométries,
+- Fuzzystrmatch : pour bénéficier des fonctions, telle levenshtein distance.
 
 La première étape consiste à créer la base de données
 
@@ -367,8 +375,8 @@ ALTER TABLE ban
 UPDATE ban
 SET geom = ST_SetSRID(ST_Point(lon, lat), 4326)
 WHERE geom IS NULL;
-UPDATE 230046
-Time: 25141,886 ms
+--UPDATE 230046
+--Time: 25141,886 ms
 ```
 
 ####SIRENE####
@@ -387,8 +395,8 @@ ALTER TABLE siren
 ```sql
 UPDATE siren
 SET code_insee = CONCAT(depet, comet);
-UPDATE 10563603
-Time: 1787948,350 ms
+--UPDATE 10563603
+--Time: 1787948,350 ms
 ```
 
 **Ajout du champ banid**
@@ -405,7 +413,8 @@ ALTER TABLE siren
 Cette opération sera effectuée par géocodage.
 Les données relatives à la localisation n'étant pas identiques entre les deux tables, nous allons utiliser un algorithme qui permettra de trouver l'adresse de la BAN la plus proche littéralement de l'adresse du SIRENE.
 En ajoutant l'extension *[Fuzzystrmatch](https://www.postgresql.org/docs/current/static/fuzzystrmatch.html)* à notre base, nous pourrons ainsi utiliser la fonction *levenshtein*.
-```
+```sql
+CREATE EXTENSION fuzzystrmatch;
 levenshtein(text source, text target) returns int
 ```
 
@@ -426,6 +435,9 @@ SET banid = (SELECT b.id
 	LIMIT 1)
 WHERE depet = '93' AND banid IS NULL;
 ```
+EXPLAIN de la requête précédente :
+
+![EXPLAIN_Geocoding](./database/EXPLAIN_Geocoding.sql.png  "EXPLAIN_Geocoding")
 
 ###Les Index###
 
@@ -450,6 +462,10 @@ Time: 777214,730 ms
 CREATE INDEX siren_code_insee ON siren
   USING btree (code_insee);
 ```
+
+##Benchmark##
+
+[Benchmark](./database/ReadMe.md)
 
 ###Option###
 
