@@ -43,7 +43,7 @@ id;nom_voie;id_fantoir;numero;rep;code_insee;code_post;alias;nom_ld;nom_afnor;li
 ADRNIVX_0000000276535697;;A045;152;"";33199;33470;"";LE VILLAGE DES PINS;;GUJAN MESTRAS;374053.7;6399654.5;-1.11036564643895;44.6196154013104;Gujan-Mestras
 ```
 
-###SIRENE###
+### SIRENE
 
 La base SIRENE est fournie en un fichier unique, au format *csv*, avec une fréquence de mise à jour mensuelle.
 Des fichiers de mise à jour régulière sont aussi disponible. Nous utiliserons ici le fichier global de 8.5Go et disponible compressé sur le site open data d'une taille de 1.5 Go.
@@ -105,11 +105,11 @@ s.a.i.)";"7010Z";"Activités des sièges sociaux";"2014";"";"";"";"11";"10 à 19
 00"
 ```
 
-##Les diagrammes EA##
+## Les diagrammes EA
 
 [Description des diagrammes EA](./diagrammes/README.md)
 
-##La base de données##
+## La base de données
 
 Le SGBD utilisé pour ce projet est PostgreSQL.
 Les extensions sont :
@@ -119,7 +119,7 @@ Les extensions sont :
 
 La première étape consiste à créer la base de données
 
-###Création de la base de données###
+### Création de la base de données
 
 ```sh
 user@server$sudo su postgresql
@@ -127,7 +127,7 @@ postgresql@server$psql
 psql (9.3.15)
 Type "help" for help.
 
-##Liste des tables existantes##
+## Liste des tables existantes
 postgres= \l 
                                    List of databases
    Name    |   Owner    | Encoding |   Collate   |    Ctype    |   Access privileges
@@ -144,19 +144,19 @@ CREATE DATABASE
 postgres= \c bigdata ##Connexion à la base ainsi créée##
 You are now connected to database "bigdata" as user "postgres".
 
-##Activation de l'extension PostGIS##
+## Activation de l'extension PostGIS
 bigdata= CREATE EXTENSION postgis;
 ```
 
 Il est aussi possible de créer un nouvel utilisateur.
 
-###Création d'un utilisateur###
+### Création d'un utilisateur
 
 ```sh
 postgres= CREATE ROLE username UNENCRYPTED PASSWORD 'motDePasseEnClair' LOGIN SUPERUSER CREATEDB CREATEROLE; 
 CREATE ROLE
 
-##Liste des utilisateurs##
+## Liste des utilisateurs
 postgres= \du
                               List of roles
  Role name  |                   Attributes                   | Member of 
@@ -167,11 +167,11 @@ postgres= \du
 postgres=# 
 ```
 
-###Création des tables###
+### Création des tables
 
 En fonction des deux bases de travail, ont été réalisé les tables correspondantes.
 
-####BAN####
+#### BAN
 
 ```sql
 CREATE TABLE ban (
@@ -195,7 +195,7 @@ CREATE TABLE ban (
 );
 ```
 
-####SIRENE####
+#### SIRENE
 
 ```sql
 CREATE TABLE siren (
@@ -303,7 +303,7 @@ CREATE TABLE siren (
 );
 ```
 
-###L'import des données###
+### L'import des données
 
 Les données étant en *csv*, les imports seront effectués avec la commande **COPY** de psql.
 Pour ce faire, il faut se connecter à la base de données.
@@ -317,7 +317,7 @@ Les paramètres utilisés sont :
 **Exemple de commande :**
 COPY table FROM './directory/file.csv' DELIMITER ';' CSV HEADER ENCODING 'UTF8';
 
-####BAN####
+#### BAN
 
 ```sh
 bigdata= COPY ban FROM './Projet_BigData/BAN_93.csv' DELIMITER ';' CSV HEADER;
@@ -335,7 +335,7 @@ SELECT * FROM ban LIMIT 1;
  ADRNIVX_0000000358919390 |          | A001       | 9001   |     | 93030      | 93440     |       | AEROPORT DE PARIS-LE BOURGET |           | DUGNY                | 658969 | 6872696.9 | 2.43975407716647 | 48.9529224984577 | Dugny
 ```
 
-####SIRENE####
+#### SIRENE
 
 ```sh
 bigdata= COPY siren FROM './Projet_BigData/sirc_20170201_152507836.csv' DELIMITER ';' CSV HEADER ENCODING 'LATIN1';
@@ -354,11 +354,11 @@ SELECT * FROM siren LIMIT 1;
 
 ```
 
-###Constatations et Modifications###
+### Constatations et Modifications
 
 Nous nous apercevons que certaines informations ne sont pas directement présentent dans les tables. Nous allons donc ajouter des champs afin d'avoir certains informations directement.
 
-####BAN####
+#### BAN
 
 **Ajout du champ geom**
 
@@ -379,7 +379,7 @@ WHERE geom IS NULL;
 --Time: 25141,886 ms
 ```
 
-####SIRENE####
+#### SIRENE
 
 **Ajout du champ code_insee**
 
@@ -439,9 +439,9 @@ EXPLAIN de la requête précédente :
 
 ![EXPLAIN_Geocoding](./database/EXPLAIN_Geocoding.sql.png  "EXPLAIN_Geocoding")
 
-###Les Index###
+### Les Index
 
-####BAN####
+#### BAN
 
 ```sql
 CREATE INDEX ban_insee ON ban
@@ -451,7 +451,7 @@ CREATE INDEX ban_id ON ban
 	USING btree (id);
 ```
 
-####SIRENE####
+#### SIRENE
 
 ```sql
 CREATE INDEX siren_dept ON siren
@@ -463,11 +463,11 @@ CREATE INDEX siren_code_insee ON siren
   USING btree (code_insee);
 ```
 
-##Benchmark##
+## Benchmark
 
 [Benchmark](./database/ReadMe.md)
 
-###Option###
+### Option
 
 Il est possible de créer une table ne contenant que les données relatives au 93 et en restreignant le nombre de colonnes.
 

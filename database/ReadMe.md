@@ -1,6 +1,6 @@
-##Benchmark
+## Benchmark
 
-###BAN93
+### BAN93
 
 **Volumétrie :** 230.046 entités (38,99 Mo)
 
@@ -13,7 +13,7 @@ Requête|Champ|Sans Index|Avec Index
 10|nom_voie|53,061 ms|0,661 ms
 11|nom_voie|59,211 ms|0,497 ms
 
-####Index####
+#### Index
 
 **id**
 
@@ -31,7 +31,7 @@ CREATE INDEX ban_voie
 --Time : 4,9 s
 ```
 
-####Requêtes####
+#### Requêtes
 
 ```sql
 0 : SELECT * FROM ban WHERE id = 'ADRNIVX_0000000268114257';
@@ -43,7 +43,7 @@ CREATE INDEX ban_voie
 11 : SELECT * FROM ban WHERE nom_voie LIKE 'rue charles de gaulle';
 ```
 
-###SIRENE###
+### SIRENE
 
 **Volumétrie :** 10.563.603 entités (8.514,09 Mo)
 
@@ -53,7 +53,7 @@ Requête|Champ|Sans Index|Avec Index
 30|libvoie|140.194,666 ms|75.194,083 ms
 31|libvoie|150.663,147 ms|566,153 ms
 
-####Index####
+#### Index
 
 **id**
 
@@ -71,7 +71,7 @@ CREATE INDEX siren_voie
 --Time : 300.584,191 ms
 ```
 
-####Requêtes####
+#### Requêtes
 
 ```sql
 20 : SELECT * FROM siren WHERE depet = '93';
@@ -80,7 +80,7 @@ CREATE INDEX siren_voie
 31 : SELECT * FROM siren WHERE libvoie LIKE 'CHARLES DE GAULLE';
 ```
 
-###Distance de Levenshtein###
+### Distance de Levenshtein
 
 La fonction de géocodage s'effectue en utilisant la fonction *[levenshtein](https://www.postgresql.org/docs/current/static/fuzzystrmatch.html)* de l'extention *fuzzystrmatch* de PostgreSQL.
 Voici le comparatif entre la requête utilisée (levenshtein) et une optimisation (levenshtein_less_equal).
