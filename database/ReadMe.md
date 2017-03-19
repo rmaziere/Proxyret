@@ -1,6 +1,6 @@
-##Benchmark##
+##Benchmark
 
-###BAN93###
+###BAN93
 
 **Volumétrie :** 230.046 entités (38,99 Mo)
 
