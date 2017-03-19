@@ -2,7 +2,7 @@
 
 **Sujet : ** Permettre la recherche et l'affichage de sociétés en fonction de critères de recherche (localisation, activité).
 
-##Les données##
+## Les données
 
 Les données de ce projet sont :
 
@@ -10,7 +10,7 @@ Les données de ce projet sont :
 - la base SIRENE,
 - un json crawling/parsing des entreprises du 93.
 
-###BAN Base Adresses Nationale###
+### BAN Base Adresses Nationale
 
 La base adresse nationale fournie une archive de 1 Go contenant autant de fichiers *csv* que de départements.
 L'ensemble des 102 fichiers font 4.5Go. Pour exemple, le fichier correspondant au département 93 fait 40 Mo.
